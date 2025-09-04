@@ -4,7 +4,7 @@ info:
   description: |
     API для управления коллекцией музыкальных групп.
     
-    Система включает два веб-сервиса:
+    Два веб-сервиса:
     - **Основной сервис** - полное управление коллекцией музыкальных групп
     - **Grammy сервис** - дополнительные операции с синглами и участниками
   version: 1.0.0
@@ -65,7 +65,7 @@ paths:
           example: 20
         - name: sort
           in: query
-          description: Поля для сортировки (например, "name,asc" или "numberOfParticipants,desc")
+          description: Поля для сортировки
           required: false
           schema:
             type: array
@@ -157,10 +157,10 @@ paths:
       tags:
         - MusicBand
       summary: Создать новую музыкальную группу
-      description: Добавление новой музыкальной группы в коллекцию
+      description: Добавление новой группы в коллекцию
       operationId: createBand
       requestBody:
-        description: Данные новой музыкальной группы
+        description: Данные новой группы
         required: true
         content:
           application/xml:
@@ -183,7 +183,7 @@ paths:
               </musicBand>
       responses:
         '201':
-          description: Музыкальная группа успешно создана
+          description: Группа успешно создана
           content:
             application/xml:
               schema:
@@ -203,7 +203,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Идентификатор музыкальной группы
+          description: ID группы
           required: true
           schema:
             type: integer
@@ -228,12 +228,12 @@ paths:
       tags:
         - MusicBand
       summary: Обновить музыкальную группу
-      description: Полное обновление информации о музыкальной группе
+      description: Обновление информации о музыкальной группе
       operationId: updateBand
       parameters:
         - name: id
           in: path
-          description: Идентификатор музыкальной группы
+          description: ID группы
           required: true
           schema:
             type: integer
@@ -249,7 +249,7 @@ paths:
               $ref: '#/components/schemas/MusicBand'
       responses:
         '200':
-          description: Музыкальная группа успешно обновлена
+          description: Группа успешно обновлена
           content:
             application/xml:
               schema:
@@ -265,12 +265,12 @@ paths:
       tags:
         - MusicBand
       summary: Удалить музыкальную группу
-      description: Удаление музыкальной группы из коллекции
+      description: Удаление группы из коллекции
       operationId: deleteBand
       parameters:
         - name: id
           in: path
-          description: Идентификатор музыкальной группы
+          description: ID группы
           required: true
           schema:
             type: integer
@@ -279,7 +279,7 @@ paths:
           example: 1
       responses:
         '204':
-          description: Музыкальная группа успешно удалена
+          description: Группа успешно удалена
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -292,7 +292,7 @@ paths:
       tags:
         - Statistics
       summary: Получить среднее количество участников
-      description: Вычисляет среднее значение поля numberOfParticipants для всех музыкальных групп в коллекции
+      description: Вычисляет среднее значение поля numberOfParticipants для всех групп в коллекции
       operationId: getAverageParticipants
       responses:
         '200':
@@ -451,12 +451,11 @@ paths:
       summary: Добавить новый сингл группе
       description: |
         Добавляет новый сингл указанной музыкальной группе.
-        Операция взаимодействует с основным API для получения информации о группе.
       operationId: addSingleToBand
       parameters:
         - name: band-id
           in: path
-          description: Идентификатор музыкальной группы
+          description: ID музыкальной группы
           required: true
           schema:
             type: integer
@@ -526,7 +525,7 @@ paths:
       parameters:
         - name: band-id
           in: path
-          description: Идентификатор музыкальной группы
+          description: ID музыкальной группы
           required: true
           schema:
             type: integer
@@ -602,7 +601,7 @@ components:
           type: integer
           format: int32
           minimum: 1
-          description: Уникальный идентификатор группы (генерируется автоматически)
+          description: Уникальный ID группы (генерируется автоматически)
           readOnly: true
           example: 1
         name:
@@ -694,7 +693,7 @@ components:
           type: integer
           format: int32
           minimum: 1
-          description: Уникальный идентификатор сингла
+          description: Уникальный ID сингла
           readOnly: true
           example: 1
         title:
@@ -734,7 +733,7 @@ components:
           type: integer
           format: int32
           minimum: 1
-          description: Уникальный идентификатор участника
+          description: Уникальный ID участника
           readOnly: true
           example: 1
         name:
@@ -804,7 +803,7 @@ components:
             </error>
     
     NotFound:
-      description: Ресурс не найден
+      description: Данные не найдены
       content:
         application/xml:
           schema:
@@ -837,7 +836,7 @@ components:
     BandId:
       name: id
       in: path
-      description: Идентификатор музыкальной группы
+      description: ID музыкальной группы
       required: true
       schema:
         type: integer
