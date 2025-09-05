@@ -2,11 +2,11 @@ openapi: 3.0.3
 info:
   title: Music Band Management API
   description: |
-    API для управления коллекцией музыкальных групп.
+    API for managing a collection of music bands.
     
-    Два веб-сервиса:
-    - **Основной сервис** - полное управление коллекцией музыкальных групп
-    - **Grammy сервис** - дополнительные операции с синглами и участниками
+    Two web services:
+    - **Main service** - complete management of music band collection
+    - **Grammy service** - additional operations with singles and participants
   version: 1.0.0
   contact:
     name: API Support
@@ -21,30 +21,30 @@ servers:
 
 tags:
   - name: MusicBand
-    description: Операции с музыкальными группами
+    description: Operations with music bands
   - name: Statistics
-    description: Статистические операции
+    description: Statistical operations
   - name: Search
-    description: Поиск групп по критериям
+    description: Search bands by criteria
   - name: Grammy
-    description: Grammy сервис - дополнительные операции
+    description: Grammy service - additional operations
 
 paths:
   /bands:
     get:
       tags:
         - MusicBand
-      summary: Получить список музыкальных групп
+      summary: Get list of music bands
       description: |
-        Получение массива музыкальных групп с поддержкой:
-        - Фильтрации по любым полям
-        - Сортировки по любой комбинации полей
-        - Постраничного вывода результатов
+        Getting an array of music bands with support for:
+        - Filtering by any fields
+        - Sorting by any combination of fields
+        - Paginated output of results
       operationId: getBands
       parameters:
         - name: page
           in: query
-          description: Номер страницы (начинается с 0)
+          description: Page number (starts from 0)
           required: false
           schema:
             type: integer
@@ -54,7 +54,7 @@ paths:
           example: 0
         - name: size
           in: query
-          description: Размер страницы
+          description: Page size
           required: false
           schema:
             type: integer
@@ -65,7 +65,7 @@ paths:
           example: 20
         - name: sort
           in: query
-          description: Поля для сортировки
+          description: Fields for sorting
           required: false
           schema:
             type: array
@@ -76,14 +76,14 @@ paths:
           example: ["name,asc", "numberOfParticipants,desc"]
         - name: name
           in: query
-          description: Фильтр по названию группы
+          description: Filter by band name
           required: false
           schema:
             type: string
           example: "Beatles"
         - name: numberOfParticipants
           in: query
-          description: Фильтр по количеству участников
+          description: Filter by number of participants
           required: false
           schema:
             type: integer
@@ -91,13 +91,13 @@ paths:
           example: 4
         - name: genre
           in: query
-          description: Фильтр по жанру
+          description: Filter by genre
           required: false
           schema:
             $ref: '#/components/schemas/MusicGenre'
         - name: albumsCount
           in: query
-          description: Фильтр по количеству альбомов
+          description: Filter by number of albums
           required: false
           schema:
             type: integer
@@ -105,14 +105,14 @@ paths:
           example: 10
         - name: coordinatesX
           in: query
-          description: Фильтр по координате X
+          description: Filter by X coordinate
           required: false
           schema:
             type: number
             format: double
         - name: coordinatesY
           in: query
-          description: Фильтр по coordinate Y
+          description: Filter by Y coordinate
           required: false
           schema:
             type: integer
@@ -120,7 +120,7 @@ paths:
             maximum: 945
       responses:
         '200':
-          description: Список музыкальных групп
+          description: List of music bands
           content:
             application/xml:
               schema:
@@ -133,19 +133,19 @@ paths:
                   totalElements:
                     type: integer
                     format: int64
-                    description: Общее количество элементов
+                    description: Total number of elements
                   totalPages:
                     type: integer
                     format: int32
-                    description: Общее количество страниц
+                    description: Total number of pages
                   currentPage:
                     type: integer
                     format: int32
-                    description: Текущая страница
+                    description: Current page
                   pageSize:
                     type: integer
                     format: int32
-                    description: Размер страницы
+                    description: Page size
                 xml:
                   name: bandsResponse
         '400':
@@ -156,11 +156,11 @@ paths:
     post:
       tags:
         - MusicBand
-      summary: Создать новую музыкальную группу
-      description: Добавление новой группы в коллекцию
+      summary: Create new music band
+      description: Adding a new band to the collection
       operationId: createBand
       requestBody:
-        description: Данные новой группы
+        description: New band data
         required: true
         content:
           application/xml:
@@ -183,7 +183,7 @@ paths:
               </musicBand>
       responses:
         '201':
-          description: Группа успешно создана
+          description: Band successfully created
           content:
             application/xml:
               schema:
@@ -197,13 +197,13 @@ paths:
     get:
       tags:
         - MusicBand
-      summary: Получить музыкальную группу по ID
-      description: Получение информации о конкретной музыкальной группе
+      summary: Get music band by ID
+      description: Getting information about a specific music band
       operationId: getBandById
       parameters:
         - name: id
           in: path
-          description: ID группы
+          description: Band ID
           required: true
           schema:
             type: integer
@@ -212,7 +212,7 @@ paths:
           example: 1
       responses:
         '200':
-          description: Информация о музыкальной группе
+          description: Music band information
           content:
             application/xml:
               schema:
@@ -227,13 +227,13 @@ paths:
     put:
       tags:
         - MusicBand
-      summary: Обновить музыкальную группу
-      description: Обновление информации о музыкальной группе
+      summary: Update music band
+      description: Updating music band information
       operationId: updateBand
       parameters:
         - name: id
           in: path
-          description: ID группы
+          description: Band ID
           required: true
           schema:
             type: integer
@@ -241,7 +241,7 @@ paths:
             minimum: 1
           example: 1
       requestBody:
-        description: Обновленные данные музыкальной группы
+        description: Updated music band data
         required: true
         content:
           application/xml:
@@ -249,7 +249,54 @@ paths:
               $ref: '#/components/schemas/MusicBand'
       responses:
         '200':
-          description: Группа успешно обновлена
+          description: Band successfully updated
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/MusicBand'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - MusicBand
+      summary: Partially update music band
+      description: |
+        Partial update of music band information. Only provided fields will be updated.
+        Unlike PUT, PATCH allows updating individual fields without affecting others.
+      operationId: patchBand
+      parameters:
+        - name: id
+          in: path
+          description: Band ID
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          example: 1
+      requestBody:
+        description: |
+          Partial music band data for update. Only include fields you want to modify.
+          All validation rules still apply to provided fields.
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/MusicBandPatch'
+            example: |
+              <?xml version="1.0" encoding="UTF-8"?>
+              <musicBandPatch>
+                <name>The Beatles Updated</name>
+                <numberOfParticipants>5</numberOfParticipants>
+              </musicBandPatch>
+      responses:
+        '200':
+          description: Band successfully patched
           content:
             application/xml:
               schema:
@@ -264,13 +311,13 @@ paths:
     delete:
       tags:
         - MusicBand
-      summary: Удалить музыкальную группу
-      description: Удаление группы из коллекции
+      summary: Delete music band
+      description: Removing band from collection
       operationId: deleteBand
       parameters:
         - name: id
           in: path
-          description: ID группы
+          description: Band ID
           required: true
           schema:
             type: integer
@@ -279,7 +326,7 @@ paths:
           example: 1
       responses:
         '204':
-          description: Группа успешно удалена
+          description: Band successfully deleted
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -291,12 +338,12 @@ paths:
     get:
       tags:
         - Statistics
-      summary: Получить среднее количество участников
-      description: Вычисляет среднее значение поля numberOfParticipants для всех групп в коллекции
+      summary: Get average number of participants
+      description: Calculates the average value of numberOfParticipants field for all bands in the collection
       operationId: getAverageParticipants
       responses:
         '200':
-          description: Среднее количество участников
+          description: Average number of participants
           content:
             application/xml:
               schema:
@@ -305,12 +352,12 @@ paths:
                   averageParticipants:
                     type: number
                     format: double
-                    description: Среднее количество участников
+                    description: Average number of participants
                     example: 4.2
                   totalBands:
                     type: integer
                     format: int32
-                    description: Общее количество групп в выборке
+                    description: Total number of bands in the sample
                     example: 50
                 xml:
                   name: averageParticipantsResponse
@@ -321,13 +368,13 @@ paths:
     get:
       tags:
         - Search
-      summary: Найти группы по префиксу названия
-      description: Возвращает массив музыкальных групп, название которых начинается с заданной подстроки
+      summary: Find bands by name prefix
+      description: Returns an array of music bands whose names start with the given substring
       operationId: getBandsByNamePrefix
       parameters:
         - name: prefix
           in: query
-          description: Префикс названия группы для поиска
+          description: Band name prefix to search for
           required: true
           schema:
             type: string
@@ -335,7 +382,7 @@ paths:
           example: "The"
         - name: page
           in: query
-          description: Номер страницы
+          description: Page number
           required: false
           schema:
             type: integer
@@ -344,7 +391,7 @@ paths:
             default: 0
         - name: size
           in: query
-          description: Размер страницы
+          description: Page size
           required: false
           schema:
             type: integer
@@ -354,14 +401,14 @@ paths:
             default: 20
         - name: ignoreCase
           in: query
-          description: Игнорировать регистр при поиске
+          description: Ignore case when searching
           required: false
           schema:
             type: boolean
             default: false
       responses:
         '200':
-          description: Список музыкальных групп с названиями, начинающимися с указанного префикса
+          description: List of music bands with names starting with the specified prefix
           content:
             application/xml:
               schema:
@@ -376,7 +423,7 @@ paths:
                     format: int64
                   searchPrefix:
                     type: string
-                    description: Использованный префикс для поиска
+                    description: Used search prefix
                 xml:
                   name: bandsByPrefixResponse
         '400':
@@ -388,22 +435,22 @@ paths:
     get:
       tags:
         - Search
-      summary: Найти группы с жанром меньше указанного
+      summary: Find bands with genre less than specified
       description: |
-        Возвращает массив музыкальных групп, значение поля genre которых меньше заданного.
-        Порядок жанров по возрастанию: PROGRESSIVE_ROCK (0) < POP (1) < MATH_ROCK (2)
+        Returns an array of music bands whose genre field value is less than the given one.
+        Genre order ascending: PROGRESSIVE_ROCK (0) < POP (1) < MATH_ROCK (2)
       operationId: getBandsByGenreLessThan
       parameters:
         - name: genre
           in: query
-          description: Жанр для сравнения
+          description: Genre for comparison
           required: true
           schema:
             $ref: '#/components/schemas/MusicGenre'
           example: POP
         - name: page
           in: query
-          description: Номер страницы
+          description: Page number
           required: false
           schema:
             type: integer
@@ -412,7 +459,7 @@ paths:
             default: 0
         - name: size
           in: query
-          description: Размер страницы
+          description: Page size
           required: false
           schema:
             type: integer
@@ -422,7 +469,7 @@ paths:
             default: 20
       responses:
         '200':
-          description: Список музыкальных групп с жанром меньше указанного
+          description: List of music bands with genre less than specified
           content:
             application/xml:
               schema:
@@ -448,14 +495,14 @@ paths:
     post:
       tags:
         - Grammy
-      summary: Добавить новый сингл группе
+      summary: Add new single to band
       description: |
-        Добавляет новый сингл указанной музыкальной группе.
+        Adds a new single to the specified music band.
       operationId: addSingleToBand
       parameters:
         - name: band-id
           in: path
-          description: ID музыкальной группы
+          description: Music band ID
           required: true
           schema:
             type: integer
@@ -463,7 +510,7 @@ paths:
             minimum: 1
           example: 1
       requestBody:
-        description: Информация о новом сингле
+        description: New single information
         required: true
         content:
           application/xml:
@@ -479,7 +526,7 @@ paths:
               </single>
       responses:
         '201':
-          description: Сингл успешно добавлен группе
+          description: Single successfully added to band
           content:
             application/xml:
               schema:
@@ -487,7 +534,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    description: Сообщение об успешном добавлении
+                    description: Success message
                     example: "Single successfully added to band"
                   single:
                     $ref: '#/components/schemas/Single'
@@ -499,13 +546,13 @@ paths:
                         format: int32
                       name:
                         type: string
-                    description: Краткая информация о группе
+                    description: Brief band information
                 xml:
                   name: addSingleResponse
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
-          description: Музыкальная группа не найдена
+          description: Music band not found
           content:
             application/xml:
               schema:
@@ -517,15 +564,15 @@ paths:
     post:
       tags:
         - Grammy
-      summary: Добавить участника в группу
+      summary: Add participant to band
       description: |
-        Добавляет нового участника в указанную музыкальную группу.
-        Автоматически обновляет поле numberOfParticipants в основной записи группы.
+        Adds a new participant to the specified music band.
+        Automatically updates numberOfParticipants field in the main band record.
       operationId: addParticipantToBand
       parameters:
         - name: band-id
           in: path
-          description: ID музыкальной группы
+          description: Music band ID
           required: true
           schema:
             type: integer
@@ -533,7 +580,7 @@ paths:
             minimum: 1
           example: 1
       requestBody:
-        description: Информация о новом участнике
+        description: New participant information
         required: true
         content:
           application/xml:
@@ -549,7 +596,7 @@ paths:
               </participant>
       responses:
         '201':
-          description: Участник успешно добавлен в группу
+          description: Participant successfully added to band
           content:
             application/xml:
               schema:
@@ -557,14 +604,14 @@ paths:
                 properties:
                   message:
                     type: string
-                    description: Сообщение об успешном добавлении
+                    description: Success message
                     example: "Participant successfully added to band"
                   participant:
                     $ref: '#/components/schemas/Participant'
                   updatedParticipantsCount:
                     type: integer
                     format: int32
-                    description: Обновленное количество участников в группе
+                    description: Updated number of participants in the band
                   bandInfo:
                     type: object
                     properties:
@@ -573,13 +620,13 @@ paths:
                         format: int32
                       name:
                         type: string
-                    description: Краткая информация о группе
+                    description: Brief band information
                 xml:
                   name: addParticipantResponse
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
-          description: Музыкальная группа не найдена
+          description: Music band not found
           content:
             application/xml:
               schema:
@@ -601,34 +648,34 @@ components:
           type: integer
           format: int32
           minimum: 1
-          description: Уникальный ID группы (генерируется автоматически)
+          description: Unique band ID (generated automatically)
           readOnly: true
           example: 1
         name:
           type: string
           minLength: 1
-          description: Название музыкальной группы (не может быть null или пустой)
+          description: Music band name (cannot be null or empty)
           example: "The Beatles"
         coordinates:
           $ref: '#/components/schemas/Coordinates'
         creationDate:
           type: string
           format: date-time
-          description: Дата создания записи (генерируется автоматически)
+          description: Record creation date (generated automatically)
           readOnly: true
           example: "2023-12-01T10:30:00Z"
         numberOfParticipants:
           type: integer
           format: int32
           minimum: 1
-          description: Количество участников группы (должно быть больше 0)
+          description: Number of band participants (must be greater than 0)
           example: 4
         albumsCount:
           type: integer
           format: int32
           minimum: 1
           nullable: true
-          description: Количество альбомов (может быть null, если задано - должно быть больше 0)
+          description: Number of albums (can be null, if specified - must be greater than 0)
           example: 13
         genre:
           $ref: '#/components/schemas/MusicGenre'
@@ -645,13 +692,13 @@ components:
         x:
           type: number
           format: double
-          description: Координата X
+          description: X coordinate
           example: 10.5
         y:
           type: integer
           format: int64
           maximum: 945
-          description: Координата Y (максимальное значение 945, не может быть null)
+          description: Y coordinate (maximum value 945, cannot be null)
           example: 100
       xml:
         name: coordinates
@@ -664,7 +711,7 @@ components:
           format: double
           minimum: 0
           exclusiveMinimum: true
-          description: Продажи лейбла (значение должно быть больше 0)
+          description: Label sales (value must be greater than 0)
           example: 1000000.50
       xml:
         name: label
@@ -676,7 +723,7 @@ components:
         - POP
         - MATH_ROCK
       description: |
-        Жанр музыки. Порядок для сравнения:
+        Music genre. Order for comparison:
         - PROGRESSIVE_ROCK (0)
         - POP (1) 
         - MATH_ROCK (2)
@@ -693,31 +740,31 @@ components:
           type: integer
           format: int32
           minimum: 1
-          description: Уникальный ID сингла
+          description: Unique single ID
           readOnly: true
           example: 1
         title:
           type: string
           minLength: 1
-          description: Название сингла
+          description: Single title
           example: "Yesterday"
         duration:
           type: integer
           format: int32
           minimum: 1
-          description: Длительность сингла в секундах
+          description: Single duration in seconds
           example: 125
         releaseDate:
           type: string
           format: date
-          description: Дата выпуска сингла
+          description: Single release date
           example: "1965-09-13"
         chartPosition:
           type: integer
           format: int32
           minimum: 1
           nullable: true
-          description: Позиция в чартах (может быть null)
+          description: Chart position (can be null)
           example: 1
       xml:
         name: single
@@ -733,28 +780,28 @@ components:
           type: integer
           format: int32
           minimum: 1
-          description: Уникальный ID участника
+          description: Unique participant ID
           readOnly: true
           example: 1
         name:
           type: string
           minLength: 1
-          description: Имя участника
+          description: Participant name
           example: "John Lennon"
         role:
           type: string
           minLength: 1
-          description: Роль участника в группе
+          description: Participant role in the band
           example: "Vocalist, Guitarist"
         joinDate:
           type: string
           format: date
-          description: Дата присоединения к группе
+          description: Date of joining the band
           example: "1960-07-06"
         instrument:
           type: string
           nullable: true
-          description: Основной инструмент (может быть null)
+          description: Main instrument (can be null)
           example: "Guitar"
       xml:
         name: participant
@@ -768,27 +815,27 @@ components:
         code:
           type: integer
           format: int32
-          description: Код ошибки
+          description: Error code
           example: 400
         message:
           type: string
-          description: Сообщение об ошибке
+          description: Error message
           example: "Validation failed"
         details:
           type: string
-          description: Детальное описание ошибки
+          description: Detailed error description
           example: "Field 'name' cannot be empty"
         timestamp:
           type: string
           format: date-time
-          description: Время возникновения ошибки
+          description: Error occurrence time
           example: "2023-12-01T10:30:00Z"
       xml:
         name: error
 
   responses:
     BadRequest:
-      description: Неверные данные запроса или нарушение ограничений целостности
+      description: Invalid request data or integrity constraint violation
       content:
         application/xml:
           schema:
@@ -803,7 +850,7 @@ components:
             </error>
     
     NotFound:
-      description: Данные не найдены
+      description: Data not found
       content:
         application/xml:
           schema:
@@ -818,7 +865,7 @@ components:
             </error>
     
     InternalServerError:
-      description: Внутренняя ошибка сервера
+      description: Internal server error
       content:
         application/xml:
           schema:
@@ -832,37 +879,19 @@ components:
               <timestamp>2023-12-01T10:30:00Z</timestamp>
             </error>
 
-  parameters:
-    BandId:
-      name: id
-      in: path
-      description: ID музыкальной группы
-      required: true
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-      example: 1
+    ServiceUnavailable:
+      description: Service unavailable error
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <error>
+              <code>503</code>
+              <message>Service unavailable error</message>
+              <details>URI /bands/1 is not available  </details>
+              <timestamp>2023-12-01T10:30:00Z</timestamp>
+            </error>
 
-    PageParam:
-      name: page
-      in: query
-      description: Номер страницы (начинается с 0)
-      required: false
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-        default: 0
-
-    SizeParam:
-      name: size
-      in: query
-      description: Размер страницы
-      required: false
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 100
-        default: 20
+            
