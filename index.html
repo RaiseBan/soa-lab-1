@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Band API Documentation</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            color: #2c3e50; 
+            text-align: center; 
+            margin-bottom: 30px; 
+        }
+        .service { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .service h2 { 
+            color: #34495e; 
+            margin-top: 0; 
+        }
+        .service p { 
+            color: #666; 
+            line-height: 1.5; 
+        }
+        .button { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background: #3498db; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            margin-right: 10px; 
+        }
+        .button:hover { 
+            background: #2980b9; 
+        }
+        .yaml-link { 
+            background: #95a5a6; 
+        }
+        .yaml-link:hover { 
+            background: #7f8c8d; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Music Band API Documentation</h1>
+        
+        <div class="service">
+            <h2>Main Music Band API</h2>
+            <p>Complete CRUD operations for music bands with advanced filtering, sorting, and pagination.</p>
+            <p><strong>Base URL:</strong> <code>http://helios:8080/api/v1</code></p>
+            <a href="main-api.html" class="button">View Documentation</a>
+            <a href="openapi-main.yaml" class="button yaml-link">Download YAML</a>
+        </div>
+        
+        <div class="service">
+            <h2>Grammy Service API</h2>
+            <p>Additional operations for managing singles and participants. Integrates with the main API.</p>
+            <p><strong>Base URL:</strong> <code>http://helios:8081/grammy</code></p>
+            <a href="grammy-api.html" class="button">View Documentation</a>
+            <a href="openapi-grammy.yaml" class="button yaml-link">Download YAML</a>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #666;">
+            <p>Music Band Management System v1.0.0</p>
+        </div>
+    </div>
+</body>
+</html>

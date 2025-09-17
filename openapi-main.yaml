@@ -2,11 +2,10 @@ openapi: 3.0.3
 info:
   title: Music Band Management API
   description: |
-    API for managing a collection of music bands.
+    Main API for managing a collection of music bands.
     
-    Two web services:
-    - **Main service** - complete management of music band collection
-    - **Grammy service** - additional operations with singles and participants
+    This service provides complete CRUD operations for music bands with advanced filtering, 
+    sorting, pagination, and statistical operations.
   version: 1.0.0
   contact:
     name: API Support
@@ -17,17 +16,13 @@ info:
 
 servers:
   - url: http://helios:8080/api/v1
-    description: Production server on Helios
+    description: Production Main API server on Helios
 
 tags:
   - name: MusicBand
     description: Operations with music bands
   - name: Statistics
     description: Statistical operations
-  - name: Search
-    description: Search bands by criteria
-  - name: Grammy
-    description: Grammy service - additional operations
 
 paths:
   /bands:
@@ -74,50 +69,42 @@ paths:
           style: form
           explode: false
           example: ["name,asc", "numberOfParticipants,desc"]
-        - name: name
+        - name: filter
           in: query
-          description: Filter by band name
+          description: |
+            Advanced filtering with operators. Format: field:operator:value
+            
+            Supported operators:
+            - eq (equals)
+            - ne (not equals) 
+            - gt (greater than)
+            - gte (greater than or equal)
+            - lt (less than)
+            - lte (less than or equal)
+            - contains (contains substring)
+            
+            Examples:
+            - name:contains:Beatles (name contains "Beatles")
+            - numberOfParticipants:gt:3 (more than 3 participants)
+            - albumsCount:gte:10 (10 or more albums)
+            - genre:eq:POP (genre equals POP)
           required: false
           schema:
-            type: string
-          example: "Beatles"
-        - name: numberOfParticipants
-          in: query
-          description: Filter by number of participants
-          required: false
-          schema:
-            type: integer
-            format: int32
-          example: 4
-        - name: genre
-          in: query
-          description: Filter by genre
-          required: false
-          schema:
-            $ref: '#/components/schemas/MusicGenre'
-        - name: albumsCount
-          in: query
-          description: Filter by number of albums
-          required: false
-          schema:
-            type: integer
-            format: int32
-          example: 10
-        - name: coordinatesX
-          in: query
-          description: Filter by X coordinate
-          required: false
-          schema:
-            type: number
-            format: double
-        - name: coordinatesY
-          in: query
-          description: Filter by Y coordinate
-          required: false
-          schema:
-            type: integer
-            format: int64
-            maximum: 945
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          examples:
+            nameContains:
+              summary: Name contains substring
+              value: ["name:contains:Beatles"]
+            participantsGreater:
+              summary: More than 3 participants
+              value: ["numberOfParticipants:gt:3"]
+            multipleFilters:
+              summary: Multiple filters
+              value: ["genre:eq:POP", "albumsCount:gte:5", "numberOfParticipants:lte:6"]
       responses:
         '200':
           description: List of music bands
@@ -148,8 +135,8 @@ paths:
                     description: Page size
                 xml:
                   name: bandsResponse
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -189,7 +176,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/MusicBand'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequestBody'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -217,10 +206,10 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/MusicBand'
-        '400':
-          $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -255,9 +244,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/MusicBand'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequestBody'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -287,7 +278,34 @@ paths:
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/MusicBandPatch'
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  description: Music band name (cannot be null or empty)
+                  example: "The Beatles"
+                coordinates:
+                  $ref: '#/components/schemas/Coordinates'
+                numberOfParticipants:
+                  type: integer
+                  format: int32
+                  minimum: 1
+                  description: Number of band participants (must be greater than 0)
+                  example: 4
+                albumsCount:
+                  type: integer
+                  format: int32
+                  minimum: 1
+                  nullable: true
+                  description: Number of albums (can be null, if specified - must be greater than 0)
+                  example: 13
+                genre:
+                  $ref: '#/components/schemas/MusicGenre'
+                label:
+                  $ref: '#/components/schemas/Label'
+              xml:
+                name: musicBandPatch
             example: |
               <?xml version="1.0" encoding="UTF-8"?>
               <musicBandPatch>
@@ -302,9 +320,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/MusicBand'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequestBody'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -327,10 +347,10 @@ paths:
       responses:
         '204':
           description: Band successfully deleted
-        '400':
-          $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -364,276 +384,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /bands/search/by-name-prefix:
-    get:
-      tags:
-        - Search
-      summary: Find bands by name prefix
-      description: Returns an array of music bands whose names start with the given substring
-      operationId: getBandsByNamePrefix
-      parameters:
-        - name: prefix
-          in: query
-          description: Band name prefix to search for
-          required: true
-          schema:
-            type: string
-            minLength: 1
-          example: "The"
-        - name: page
-          in: query
-          description: Page number
-          required: false
-          schema:
-            type: integer
-            format: int32
-            minimum: 0
-            default: 0
-        - name: size
-          in: query
-          description: Page size
-          required: false
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-            maximum: 100
-            default: 20
-        - name: ignoreCase
-          in: query
-          description: Ignore case when searching
-          required: false
-          schema:
-            type: boolean
-            default: false
-      responses:
-        '200':
-          description: List of music bands with names starting with the specified prefix
-          content:
-            application/xml:
-              schema:
-                type: object
-                properties:
-                  bands:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/MusicBand'
-                  totalElements:
-                    type: integer
-                    format: int64
-                  searchPrefix:
-                    type: string
-                    description: Used search prefix
-                xml:
-                  name: bandsByPrefixResponse
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /bands/search/by-genre-less-than:
-    get:
-      tags:
-        - Search
-      summary: Find bands with genre less than specified
-      description: |
-        Returns an array of music bands whose genre field value is less than the given one.
-        Genre order ascending: PROGRESSIVE_ROCK (0) < POP (1) < MATH_ROCK (2)
-      operationId: getBandsByGenreLessThan
-      parameters:
-        - name: genre
-          in: query
-          description: Genre for comparison
-          required: true
-          schema:
-            $ref: '#/components/schemas/MusicGenre'
-          example: POP
-        - name: page
-          in: query
-          description: Page number
-          required: false
-          schema:
-            type: integer
-            format: int32
-            minimum: 0
-            default: 0
-        - name: size
-          in: query
-          description: Page size
-          required: false
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-            maximum: 100
-            default: 20
-      responses:
-        '200':
-          description: List of music bands with genre less than specified
-          content:
-            application/xml:
-              schema:
-                type: object
-                properties:
-                  bands:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/MusicBand'
-                  totalElements:
-                    type: integer
-                    format: int64
-                  searchGenre:
-                    $ref: '#/components/schemas/MusicGenre'
-                xml:
-                  name: bandsByGenreResponse
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /grammy/band/{band-id}/singles/add:
-    post:
-      tags:
-        - Grammy
-      summary: Add new single to band
-      description: |
-        Adds a new single to the specified music band.
-      operationId: addSingleToBand
-      parameters:
-        - name: band-id
-          in: path
-          description: Music band ID
-          required: true
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-          example: 1
-      requestBody:
-        description: New single information
-        required: true
-        content:
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Single'
-            example: |
-              <?xml version="1.0" encoding="UTF-8"?>
-              <single>
-                <title>Yesterday</title>
-                <duration>125</duration>
-                <releaseDate>1965-09-13</releaseDate>
-                <chartPosition>1</chartPosition>
-              </single>
-      responses:
-        '201':
-          description: Single successfully added to band
-          content:
-            application/xml:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                    example: "Single successfully added to band"
-                  single:
-                    $ref: '#/components/schemas/Single'
-                  bandInfo:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        format: int32
-                      name:
-                        type: string
-                    description: Brief band information
-                xml:
-                  name: addSingleResponse
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          description: Music band not found
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /grammy/band/{band-id}/participants/add:
-    post:
-      tags:
-        - Grammy
-      summary: Add participant to band
-      description: |
-        Adds a new participant to the specified music band.
-        Automatically updates numberOfParticipants field in the main band record.
-      operationId: addParticipantToBand
-      parameters:
-        - name: band-id
-          in: path
-          description: Music band ID
-          required: true
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-          example: 1
-      requestBody:
-        description: New participant information
-        required: true
-        content:
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Participant'
-            example: |
-              <?xml version="1.0" encoding="UTF-8"?>
-              <participant>
-                <name>John Lennon</name>
-                <role>Vocalist, Guitarist</role>
-                <joinDate>1960-07-06</joinDate>
-                <instrument>Guitar</instrument>
-              </participant>
-      responses:
-        '201':
-          description: Participant successfully added to band
-          content:
-            application/xml:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                    example: "Participant successfully added to band"
-                  participant:
-                    $ref: '#/components/schemas/Participant'
-                  updatedParticipantsCount:
-                    type: integer
-                    format: int32
-                    description: Updated number of participants in the band
-                  bandInfo:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        format: int32
-                      name:
-                        type: string
-                    description: Brief band information
-                xml:
-                  name: addParticipantResponse
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          description: Music band not found
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
 components:
   schemas:
     MusicBand:
@@ -660,10 +410,10 @@ components:
           $ref: '#/components/schemas/Coordinates'
         creationDate:
           type: string
-          format: date-time
+          format: date
           description: Record creation date (generated automatically)
           readOnly: true
-          example: "2023-12-01T10:30:00Z"
+          example: "2023-12-01"
         numberOfParticipants:
           type: integer
           format: int32
@@ -729,83 +479,6 @@ components:
         - MATH_ROCK (2)
       example: POP
 
-    Single:
-      type: object
-      required:
-        - title
-        - duration
-        - releaseDate
-      properties:
-        id:
-          type: integer
-          format: int32
-          minimum: 1
-          description: Unique single ID
-          readOnly: true
-          example: 1
-        title:
-          type: string
-          minLength: 1
-          description: Single title
-          example: "Yesterday"
-        duration:
-          type: integer
-          format: int32
-          minimum: 1
-          description: Single duration in seconds
-          example: 125
-        releaseDate:
-          type: string
-          format: date
-          description: Single release date
-          example: "1965-09-13"
-        chartPosition:
-          type: integer
-          format: int32
-          minimum: 1
-          nullable: true
-          description: Chart position (can be null)
-          example: 1
-      xml:
-        name: single
-
-    Participant:
-      type: object
-      required:
-        - name
-        - role
-        - joinDate
-      properties:
-        id:
-          type: integer
-          format: int32
-          minimum: 1
-          description: Unique participant ID
-          readOnly: true
-          example: 1
-        name:
-          type: string
-          minLength: 1
-          description: Participant name
-          example: "John Lennon"
-        role:
-          type: string
-          minLength: 1
-          description: Participant role in the band
-          example: "Vocalist, Guitarist"
-        joinDate:
-          type: string
-          format: date
-          description: Date of joining the band
-          example: "1960-07-06"
-        instrument:
-          type: string
-          nullable: true
-          description: Main instrument (can be null)
-          example: "Guitar"
-      xml:
-        name: participant
-
     Error:
       type: object
       required:
@@ -834,8 +507,8 @@ components:
         name: error
 
   responses:
-    BadRequest:
-      description: Invalid request data or integrity constraint violation
+    BadRequestBody:
+      description: Invalid request body or malformed XML
       content:
         application/xml:
           schema:
@@ -844,13 +517,28 @@ components:
             <?xml version="1.0" encoding="UTF-8"?>
             <error>
               <code>400</code>
-              <message>Validation failed</message>
-              <details>Field 'name' cannot be empty</details>
+              <message>Invalid request body</message>
+              <details>Malformed XML or missing required fields</details>
+              <timestamp>2023-12-01T10:30:00Z</timestamp>
+            </error>
+
+    UnprocessableEntity:
+      description: Business logic validation failed
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <error>
+              <code>422</code>
+              <message>Business validation failed</message>
+              <details>Field 'name' cannot be empty or numberOfParticipants must be greater than 0</details>
               <timestamp>2023-12-01T10:30:00Z</timestamp>
             </error>
     
     NotFound:
-      description: Data not found
+      description: Resource not found
       content:
         application/xml:
           schema:
@@ -890,8 +578,41 @@ components:
             <error>
               <code>503</code>
               <message>Service unavailable error</message>
-              <details>URI /bands/1 is not available  </details>
+              <details>URI /bands/1 is not available</details>
               <timestamp>2023-12-01T10:30:00Z</timestamp>
             </error>
 
-            
+  parameters:
+    BandId:
+      name: id
+      in: path
+      description: Band ID
+      required: true
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+      example: 1
+
+    PageParam:
+      name: page
+      in: query
+      description: Page number (starts from 0)
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 0
+
+    SizeParam:
+      name: size
+      in: query
+      description: Page size
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 20

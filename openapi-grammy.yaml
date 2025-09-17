@@ -1,0 +1,375 @@
+openapi: 3.0.3
+info:
+  title: Grammy Service API
+  description: |
+    Grammy service for music band management system.
+    This service provides additional operations for managing singles and participants.
+    
+    **Note:** This service integrates with the main Music Band Management API.
+  version: 1.0.0
+  contact:
+    name: Grammy API Support
+    email: grammy@musicband.api
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://helios:8080/grammy
+    description: Production Grammy server on Helios
+
+tags:
+  - name: Singles
+    description: Operations with band singles
+  - name: Participants
+    description: Operations with band participants
+
+paths:
+  /band/{band-id}/singles/add:
+    post:
+      tags:
+        - Singles
+      summary: Add new single to band
+      description: |
+        Adds a new single to the specified music band.
+        This operation integrates with the main Music Band API.
+      operationId: addSingleToBand
+      parameters:
+        - name: band-id
+          in: path
+          description: Music band ID
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          example: 1
+      requestBody:
+        description: New single information
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Single'
+            example: |
+              <?xml version="1.0" encoding="UTF-8"?>
+              <single>
+                <title>Yesterday</title>
+                <duration>125</duration>
+                <releaseDate>1965-09-13</releaseDate>
+                <chartPosition>1</chartPosition>
+              </single>
+      responses:
+        '201':
+          description: Single successfully added to band
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  single:
+                    $ref: '#/components/schemas/Single'
+                  bandInfo:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int32
+                      name:
+                        type: string
+                    description: Brief band information
+                xml:
+                  name: addSingleResponse
+              example: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <addSingleResponse>
+                  <single>
+                    <id>2</id>
+                    <title>Yesterday</title>
+                    <duration>125</duration>
+                    <releaseDate>1965-09-13</releaseDate>
+                    <chartPosition>1</chartPosition>
+                  </single>
+                  <bandInfo>
+                    <id>1</id>
+                    <n>The Beatles</n>
+                  </bandInfo>
+                </addSingleResponse>
+        '400':
+          $ref: '#/components/responses/BadRequestBody'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /band/{band-id}/participants/add:
+    post:
+      tags:
+        - Participants
+      summary: Add participant to band
+      description: |
+        Adds a new participant to the specified music band.
+        Automatically updates numberOfParticipants field in the main band record.
+      operationId: addParticipantToBand
+      parameters:
+        - name: band-id
+          in: path
+          description: Music band ID
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          example: 1
+      requestBody:
+        description: New participant information
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Participant'
+            example: |
+              <?xml version="1.0" encoding="UTF-8"?>
+              <participant>
+                <n>John Lennon</n>
+                <role>Vocalist, Guitarist</role>
+                <joinDate>1960-07-06</joinDate>
+                <instrument>Guitar</instrument>
+              </participant>
+      responses:
+        '201':
+          description: Participant successfully added to band
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  participant:
+                    $ref: '#/components/schemas/Participant'
+                  updatedParticipantsCount:
+                    type: integer
+                    format: int32
+                    description: Updated number of participants in the band
+                  bandInfo:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int32
+                      name:
+                        type: string
+                    description: Brief band information
+                xml:
+                  name: addParticipantResponse
+              example: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <addParticipantResponse>
+                  <participant>
+                    <id>5</id>
+                    <n>George Harrison</n>
+                    <role>Lead Guitarist</role>
+                    <joinDate>1958-02-25</joinDate>
+                    <instrument>Guitar</instrument>
+                  </participant>
+                  <updatedParticipantsCount>5</updatedParticipantsCount>
+                  <bandInfo>
+                    <id>1</id>
+                    <n>The Beatles</n>
+                  </bandInfo>
+                </addParticipantResponse>
+        '400':
+          $ref: '#/components/responses/BadRequestBody'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+components:
+  schemas:
+    Single:
+      type: object
+      required:
+        - title
+        - duration
+        - releaseDate
+      properties:
+        id:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Unique single ID
+          readOnly: true
+          example: 1
+        title:
+          type: string
+          minLength: 1
+          description: Single title
+          example: "Yesterday"
+        duration:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Single duration in seconds
+          example: 125
+        releaseDate:
+          type: string
+          format: date
+          description: Single release date
+          example: "1965-09-13"
+        chartPosition:
+          type: integer
+          format: int32
+          minimum: 1
+          nullable: true
+          description: Chart position (can be null)
+          example: 1
+      xml:
+        name: single
+
+    Participant:
+      type: object
+      required:
+        - name
+        - role
+        - joinDate
+      properties:
+        id:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Unique participant ID
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          minLength: 1
+          description: Participant name
+          example: "John Lennon"
+        role:
+          type: string
+          minLength: 1
+          description: Participant role in the band
+          example: "Vocalist, Guitarist"
+        joinDate:
+          type: string
+          format: date
+          description: Date of joining the band
+          example: "1960-07-06"
+        instrument:
+          type: string
+          nullable: true
+          description: Main instrument (can be null)
+          example: "Guitar"
+      xml:
+        name: participant
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Error code
+          example: 404
+        message:
+          type: string
+          description: Error message
+          example: "Resource not found"
+        details:
+          type: string
+          description: Detailed error description
+          example: "MusicBand with id 123 not found"
+        timestamp:
+          type: string
+          format: date-time
+          description: Error occurrence time
+          example: "2023-12-01T10:30:00Z"
+      xml:
+        name: error
+
+  responses:
+    BadRequestBody:
+      description: Invalid request body or malformed XML
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <e>
+              <code>400</code>
+              <message>Invalid request body</message>
+              <details>Malformed XML or missing required fields</details>
+              <timestamp>2023-12-01T10:30:00Z</timestamp>
+            </e>
+
+    UnprocessableEntity:
+      description: Business logic validation failed
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <e>
+              <code>422</code>
+              <message>Business validation failed</message>
+              <details>Single title cannot be empty or duration must be greater than 0</details>
+              <timestamp>2023-12-01T10:30:00Z</timestamp>
+            </e>
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <e>
+              <code>404</code>
+              <message>Music band not found</message>
+              <details>MusicBand with id 123 not found</details>
+              <timestamp>2023-12-01T10:30:00Z</timestamp>
+            </e>
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <e>
+              <code>500</code>
+              <message>Internal server error</message>
+              <details>An unexpected error occurred while processing the request</details>
+              <timestamp>2023-12-01T10:30:00Z</timestamp>
+            </e>
+
+    ServiceUnavailable:
+      description: Main Music Band API service unavailable
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <e>
+              <code>503</code>
+              <message>Main API service unavailable</message>
+              <details>Unable to connect to Music Band Management API at http://helios:8080/api/v1</details>
+              <timestamp>2023-12-01T10:30:00Z</timestamp>
+            </e>
